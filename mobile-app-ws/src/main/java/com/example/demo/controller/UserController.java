@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,12 +24,16 @@ import com.example.demo.exception.UserServiceException;
 import com.example.demo.model.UpdateUserDetails;
 import com.example.demo.model.UserDetails;
 import com.example.demo.model.UserRest;
+import com.example.demo.service.UserService;
 
 @RestController
 @RequestMapping("users")
 public class UserController {
 
 	Map<String, UserRest> users;
+	
+	@Autowired
+	UserService userService;
 	
 	@GetMapping
 	public String getUsers(@RequestParam(value = "page", defaultValue = "1") int page,
@@ -54,17 +59,8 @@ public class UserController {
 	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
 	public ResponseEntity<UserRest> createUser(@Valid @RequestBody UserDetails userDetails) {
-		UserRest userRest = new UserRest();
-
-		userRest.setFirstName(userDetails.getFirstName());
-		userRest.setLastName(userDetails.getLastName());
-		userRest.setEmailId(userDetails.getEmailId());
-
-		String userId = UUID.randomUUID().toString();
-		userRest.setUserId(userId);
 		
-		if(users == null) users = new HashMap<String, UserRest>();
-		users.put(userId, userRest);
+		UserRest userRest = userService.createUser(userDetails);
 		
 		return new ResponseEntity<UserRest>(userRest, HttpStatus.OK);
 
