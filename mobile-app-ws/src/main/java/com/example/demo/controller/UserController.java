@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.model.UpdateUserDetails;
 import com.example.demo.model.UserDetails;
 import com.example.demo.model.UserRest;
 
@@ -66,13 +67,20 @@ public class UserController {
 
 	}
 
-	@PutMapping
-	public String updateUser() {
-		return "Update User was called";
+	@PutMapping(path="/{id}",consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE }, produces = {
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE })
+	public UserRest updateUser(@PathVariable String id, @Valid @RequestBody UpdateUserDetails userDetails) {
+			UserRest storeUserDetails = users.get(id);
+			storeUserDetails.setFirstName(userDetails.getFirstName());
+			storeUserDetails.setLastName(userDetails.getLastName());
+			users.put(id, storeUserDetails);
+			return storeUserDetails;
 	}
 
-	@DeleteMapping
-	public String deleteUser() {
-		return "Delete user was called";
+	@DeleteMapping(path="/{id}")
+	public ResponseEntity<?> deleteUser(@PathVariable String id) {
+		
+		users.remove(id);
+		return ResponseEntity.noContent().build();
 	}
 }
